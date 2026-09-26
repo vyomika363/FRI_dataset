@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FRI 2.0 — Framework Explorer</title>
+<style>
+  :root{
+    --paper:#f8f6f1;
+    --panel:#ffffff;
+    --ink:#211f1c;
+    --ink-soft:#6b6862;
+    --line:#e4e0d6;
+    --accent:#1f5f52;
+    --accent-soft:#e6ede9;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:48px 24px 80px;
+  }
+  header.top{
+    margin-bottom:32px;
+  }
+  .kicker{
+    font-size:13px;
+    color:var(--accent);
+    letter-spacing:.02em;
+    margin:0 0 10px;
+    font-weight:600;
+  }
+  h1.title{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:36px;
+    line-height:1.15;
+    margin:0 0 12px;
+    color:var(--ink);
+  }
+  p.lede{
+    font-size:15.5px;
+    line-height:1.6;
+    color:var(--ink-soft);
+    max-width:58ch;
+    margin:0;
+  }
+  nav.crumbs{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:6px;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:24px;
+  }
+  nav.crumbs .crumb{
+    cursor:pointer;
+    padding:2px 0;
+    border-bottom:1px solid transparent;
+  }
+  nav.crumbs .crumb:hover{
+    color:var(--ink);
+    border-bottom-color:var(--ink-soft);
+  }
+  nav.crumbs .crumb.current{
+    color:var(--ink);
+    cursor:default;
+    border-bottom-color:transparent;
+  }
+  nav.crumbs .sep{
+    color:var(--line);
+  }
+  .panel-title{
+    font-family:var(--serif);
+    font-size:27px;
+    font-weight:400;
+    margin:0 0 6px;
+  }
+  .panel-desc{
+    font-size:14.5px;
+    line-height:1.6;
+    color:var(--ink-soft);
+    margin:0 0 26px;
+    max-width:62ch;
+  }
+
+  /* bubble grid */
+  .bubbles{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin:0;
+    padding:0;
+  }
+  .bubble{
+    all:unset;
+    box-sizing:border-box;
+    display:inline-flex;
+    align-items:baseline;
+    gap:8px;
+    padding:13px 20px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    border-radius:999px;
+    cursor:pointer;
+    font-size:15px;
+    color:var(--ink);
+    line-height:1.3;
+    transition:border-color .15s ease, background .15s ease, color .15s ease, transform .1s ease;
+  }
+  .bubble:hover{
+    border-color:var(--accent);
+    background:var(--accent-soft);
+    color:var(--accent);
+  }
+  .bubble:active{
+    transform:scale(.98);
+  }
+  .bubble:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+  .bubble .count{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:1px 8px;
+  }
+  .bubble:hover .count{
+    color:var(--accent);
+    border-color:var(--accent-soft);
+    background:#fff;
+  }
+  .bubble.lg{
+    font-size:16px;
+    padding:16px 24px;
+  }
+  .empty-note{
+    font-size:14px;
+    color:var(--ink-soft);
+    padding:6px 4px 0;
+    font-style:italic;
+  }
+
+  .detail-card{
+    border:1px solid var(--line);
+    background:var(--panel);
+    border-radius:14px;
+    padding:30px;
+  }
+  .field{
+    margin-bottom:24px;
+  }
+  .field:last-child{margin-bottom:0;}
+  .field-label{
+    font-size:12px;
+    color:var(--accent);
+    font-weight:600;
+    margin:0 0 8px;
+  }
+  .field-body{
+    font-size:15.5px;
+    line-height:1.65;
+    color:var(--ink);
+    margin:0;
+  }
+  .field-body.muted{
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+  a.source-link{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    color:var(--accent);
+    text-decoration:none;
+    border-bottom:1px solid var(--accent-soft);
+    padding-bottom:1px;
+    word-break:break-all;
+    font-size:15px;
+  }
+  a.source-link:hover{
+    border-bottom-color:var(--accent);
+  }
+  a.source-link svg{flex:none;}
+  .rationale-box{
+    background:var(--accent-soft);
+    border-left:2px solid var(--accent);
+    padding:16px 18px;
+    margin:0 0 24px;
+    font-size:14.5px;
+    line-height:1.6;
+    color:#2c463f;
+    border-radius:0 10px 10px 0;
+  }
+  .rationale-box .field-label{
+    color:var(--accent);
+    margin-bottom:6px;
+  }
+  footer.note{
+    margin-top:44px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    border-top:1px solid var(--line);
+    padding-top:18px;
+  }
+  @media (max-width:520px){
+    .wrap{padding:32px 16px 64px;}
+    h1.title{font-size:28px;}
+    .panel-title{font-size:22px;}
+    .detail-card{padding:22px 18px;}
+    .bubble{padding:11px 16px; font-size:14px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script id="fri-data" type="application/json">[{"name": "Business Environment", "description": null, "indicators": [{"name": "Political Stability and Rule of Law", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Score (Out of 10) (Year 2022)", "dataSource": "https://indiajusticereport.org/rankings/ijr-3/overall/large-states/map", "oneLiner": null}]}, {"name": "Ease of Doing Business", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Ranks (2019)", "dataSource": "https://www.rbi.org.in/Scripts/PublicationsView.aspx?id=20117", "oneLiner": null}]}, {"name": "GDP", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "In Lakh Cr", "dataSource": "https://iced.niti.gov.in/state-report/madhya-pradesh", "oneLiner": null}]}, {"name": "Tax and Competition", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Grand Total (in cr) [2026-2027]", "dataSource": null, "oneLiner": null}]}]}, {"name": "Human Capital", "description": null, "indicators": [{"name": "Education and Development", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Total no. of reputated institues", "dataSource": null, "oneLiner": null}]}, {"name": "Quality of life", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Score (Out of 100)(year2023)", "dataSource": null, "oneLiner": null}]}, {"name": "Flexible Labour Market", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Labour Participation Rate", "dataSource": null, "oneLiner": null}]}]}, {"name": "Infrastructure", "description": null, "indicators": [{"name": "Digital infra", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Average mobile speed", "dataSource": null, "oneLiner": "Average Modible speed shows the quality of internet connectivity"}, {"name": "Consistency", "dataSource": null, "oneLiner": "Consistency Shows consistency of Internet"}, {"name": "Internet Penetration", "dataSource": null, "oneLiner": "Penetrations shows internet penetration among the population"}]}, {"name": "Physical infra", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Road Cover", "dataSource": null, "oneLiner": "Road Cover Connectivity Via Roads"}, {"name": "Traffic Index", "dataSource": null, "oneLiner": "Shows congestion for this we have taken traffic of metro cities of that state"}, {"name": "Airport Passangers", "dataSource": null, "oneLiner": "Connectivity Via Air"}, {"name": "No. of Banks/Atms", "dataSource": "https://rbidocs.rbi.org.in/rdocs/STATEREGION_ATM/PDFs/QUARTERLYATMJUNE2026ECEC362A8EB84D958716F682AC05DEE0.PDF", "oneLiner": "Shows Financial Infra"}]}]}, {"name": "Financial Sector Development", "description": null, "indicators": [{"name": "Depth(Direct Jobs)", "dataSource": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2253019&lang=2&reg=3", "oneLiner": null, "rationale": null, "subindicators": []}, {"name": "D&B of Industry clusters", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Breadth(DPIIT Startups)", "dataSource": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2253019&lang=2&reg=3", "oneLiner": "Represents the strength and diversity of the state's fintech ecosystem"}]}, {"name": "Availability of capital", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Credit Deposit Ratio", "dataSource": "https://www.indiabudget.gov.in/economicsurvey/doc/stat/tab3.3.pdf?utm_source=chatgpt.com", "oneLiner": "Reflects access to funding needed for fintech growth and innovation"}]}, {"name": "FInancial literacy", "dataSource": "DP-286-PDash-and-Rahul-Ranjan.pdf", "oneLiner": "Measures people's ability to understand and effectively use financial services", "rationale": null, "subindicators": []}, {"name": "Avg transaction value", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "UPI", "dataSource": "Datum - India's Retail & Consumer Data Platform", "oneLiner": "Captures the scale and intensity of financial transactions in the state."}]}]}, {"name": "Reputation", "description": null, "indicators": [{"name": "Reputation", "dataSource": null, "oneLiner": null, "rationale": "Reputation captures how a state is regarded by investors and the startup community. It is about esteem, not visibility. A state is well regarded if the people who put money and effort into it rate it highly, not just if it is talked about often.", "subindicators": [{"name": "Investment Friendliness Index", "dataSource": "https://www.niti.gov.in/whats-new/investment-friendliness-index-2026", "oneLiner": "The source is credible and independent of the states being ranked. The index was prepared by NITI Aayog with CRISIL as knowledge partner, and assesses all 28 states and eight Union Territories. Because every state and UT is covered, all 10 FRI states (including Delhi NCR) receive a score. This removes the false-zero problem that affected the Google Trends indicator."}]}]}, {"name": "Innovation & Startup Ecosystem", "description": null, "indicators": [{"name": "Startup Density", "dataSource": "https://www.pib.gov.in/PressReleaseIframePage.aspx?PRID=2002100&reg=48&lang=2", "oneLiner": null, "rationale": "Measures the raw scale of entrepreneurial activity in a city (startups per capita/area). It's the base-rate indicator ,without it you can't tell if a city's ecosystem is genuinely large or just has a few high-visibility players.", "subindicators": []}, {"name": "Acceleration and Incubation Capacity", "dataSource": "https://platform.tracxn.com/a/s/feed/57d9383be4b05d71fce0b389/t/companiescovered/t/all/table?h=21f4c33c927c2c3a853c968f2e2d22b1968ba28cbcfb2b0c7bc21939ce1e8af1&s=sort%3Drelevance%7Corder%3DDESC#%7CselectedCurrency%3DUSD", "oneLiner": null, "rationale": "Captures the support infrastructure that converts ideas into viable startups , incubators, accelerators, mentorship pipelines. Density alone doesn't tell you if the ecosystem is self-sustaining; this indicator measures whether the city can keep generating and nurturing new ventures.", "subindicators": []}, {"name": "Market reach", "dataSource": "https://www.startupindia.gov.in/srf/portal/edition_5th_2026.html", "oneLiner": null, "rationale": "Measures how far startups in that city can scale beyond local boundaries (domestic/export market access, procurement linkages). This captures ecosystem maturity, a city can have high density and strong incubation but still produce startups that stay small/local, which would understate true fintech readiness.", "subindicators": []}, {"name": "Investments in R&D", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "institution support", "dataSource": null, "oneLiner": null}, {"name": "funding opportunity", "dataSource": null, "oneLiner": null}]}]}, {"name": "Sustainability", "description": "Designed to assess the environmental sustainability of a state and the extent to which its financial ecosystem supports the transition toward sustainable and low-carbon development. The parameter considers both environmental impact and sustainable finance activity, with subindicators including CO₂ emissions, municipal green bond issuance, and urban green space per capita. Due to data availability and consistency across states, the current framework retains CO₂ emissions,Urban Green Space and Municipal Green Bond Issuance as measurable subindicators.", "indicators": [{"name": "Urban green space per capita", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Urban Green Space (Per Capita Per m^2)", "dataSource": "It measures how sustainable and livable the city is for long term growth environmentally.", "oneLiner": "It shows the environmental sustainability of a city and the quality of the urban ecosystem, which contributes to the overall sustainability of a fintech hub."}]}, {"name": "Carbon footprint", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "CO2 emission (million tonnes)", "dataSource": "https://ghgplatform-india.org/economy-wide/", "oneLiner": "Designed to capture the state's environmental impact and carbon burden, with total CO₂ emissions providing a measurable indication of the extent of carbon-intensive economic activity."}]}, {"name": "Green bond issuance", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Municipal green bonds(in cr)", "dataSource": "https://www.sebi.gov.in/statistics/municipalbonds.html", "oneLiner": "Designed to capture the state's sustainable finance capacity, reflecting the extent to which municipalities mobilize capital through green bonds for environmentally sustainable infrastructure and development projects."}]}]}, {"name": "Cyber Security", "description": null, "indicators": [{"name": "Cybersecurity Ecosystem", "dataSource": null, "oneLiner": null, "rationale": "The Cybersecurity parameter is designed to capture multiple dimensions of a state's cyber resilience and digital-financial safety.                                                                       Indicators include cybersecurity ecosystem and institutional response, consumer protection, cyber-fraud outcomes, and broader cyber-awareness and preparedness.                              Due to the limited availability of datasets, the current framework retains Cybersecurity Ecosystem and Consumer Protection as the measurable indicators.", "subindicators": [{"name": "No of cyber cell police stations", "dataSource": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2238253&lang=2&reg=48&utm_source=chatgpt.com", "oneLiner": "Designed to capture the state's capacity and effectiveness in preventing, investigating, and responding to cyber threats. Subindicators considered included cybercrime investigation capacity, cybercrime chargesheet/conviction rates, financial cyber-fraud complaint rates, cyber-fraud recovery rates, cybersecurity infrastructure and personnel, and cyber-awareness initiatives. Due to state-level data availability, only the measures with sufficiently consistent data were retained."}, {"name": "% of Total convicted+chargesheeted frauds in cybercrimes", "dataSource": "https://www.data.gov.in/resource/city-wise-cases-registered-cr-cases-charge-sheeted-ccs-cases-convicted-con-persons", "oneLiner": null}, {"name": "Financial Cyber Fraud Complaint Rate", "dataSource": "https://www.data.gov.in/resource/stateut-wise-details-statistics-national-cyber-crime-reporting-portal-ncrp-related-cyber", "oneLiner": null}, {"name": "Percentage of Government and Government Aided Schools providing orientation on cyber safety to students", "dataSource": "https://www.data.gov.in/resource/stateut-wise-number-government-and-government-aided-schools-providing-orientation-cyber", "oneLiner": null}]}, {"name": "Consumer Protection", "dataSource": null, "oneLiner": null, "rationale": null, "subindicators": [{"name": "Consumer cases filed", "dataSource": "https://www.data.gov.in/resource/stateut-wise-number-consumer-cases-filed-and-disposed-all-consumer-commissions-2021-2023", "oneLiner": "Designed to assess the level of protection available to consumers against financial fraud, cyber-related financial losses and unresolved grievances. Subindicators considered included consumer cases filed and disposed, financial complaints, cyber-fraud complaints, amount recovered/refunded, grievance resolution rates, and consumer awareness initiatives; the final framework retains the measures for which comparable state-level data were available."}]}]}]</script>
+<script>
+const DATA = JSON.parse(document.getElementById('fri-data').textContent);
+
+let state = { level: 'home' };
+
+function isUrl(s){
+  return typeof s === 'string' && /^https?:\/\//i.test(s.trim());
+}
+
+function crumbHtml(items){
+  let html = '<nav class="crumbs">';
+  items.forEach((it, i) => {
+    if (i > 0) html += '<span class="sep">/</span>';
+    if (it.current) {
+      html += `<span class="crumb current">${escapeHtml(it.label)}</span>`;
+    } else {
+      html += `<span class="crumb" data-nav="${it.nav}">${escapeHtml(it.label)}</span>`;
+    }
+  });
+  html += '</nav>';
+  return html;
+}
+
+function escapeHtml(s){
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function externalIcon(){
+  return '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 8L8 4M8 4H5M8 4V7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function sourceBlock(src){
+  if (!src) {
+    return '<p class="field-body muted">No data source listed for this item.</p>';
+  }
+  if (isUrl(src)) {
+    return `<a class="source-link" href="${escapeHtml(src)}" target="_blank" rel="noopener noreferrer">${externalIcon()}${escapeHtml(src)}</a>`;
+  }
+  return `<p class="field-body">${escapeHtml(src)}</p>`;
+}
+
+function render(){
+  const app = document.getElementById('app');
+  if (state.level === 'home') app.innerHTML = renderHome();
+  else if (state.level === 'param') app.innerHTML = renderParam();
+  else if (state.level === 'indicator') app.innerHTML = renderIndicator();
+  else if (state.level === 'sub-detail') app.innerHTML = renderSubDetail();
+  bindNav();
+}
+
+function renderHome(){
+  let bubbles = DATA.map((p, i) => {
+    const n = p.indicators.length;
+    return `<button class="bubble lg" data-goto="param" data-p="${i}">
+      <span>${escapeHtml(p.name)}</span>
+      <span class="count">${n}</span>
+    </button>`;
+  }).join('');
+  return `
+    <header class="top">
+      <p class="kicker">FRI 2.0</p>
+      <h1 class="title">Framework explorer</h1>
+      <p class="lede">Every parameter behind the index, broken down into its indicators and subindicators, each traced back to its data source and reasoning. Tap a parameter to start.</p>
+    </header>
+    <div class="bubbles">${bubbles}</div>
+    <footer class="note">${DATA.length} parameters · ${DATA.reduce((a,p)=>a+p.indicators.length,0)} indicators · ${DATA.reduce((a,p)=>a+p.indicators.reduce((b,i)=>b+i.subindicators.length,0),0)} subindicators</footer>
+  `;
+}
+
+function renderParam(){
+  const p = DATA[state.paramIdx];
+  const crumbs = crumbHtml([
+    {label:'Framework', nav: JSON.stringify({level:'home'})},
+    {label:p.name, current:true}
+  ]);
+  const desc = p.description ? `<p class="panel-desc">${escapeHtml(p.description)}</p>` : `<p class="panel-desc">Indicators used to measure ${escapeHtml(p.name)}.</p>`;
+  let body;
+  if (p.indicators.length === 0) {
+    body = '<p class="empty-note">No indicators recorded yet for this parameter.</p>';
+  } else {
+    body = '<div class="bubbles">' + p.indicators.map((ind, i) => {
+      const n = ind.subindicators.length;
+      const label = n > 0 ? n : (ind.dataSource ? '1' : '0');
+      return `<button class="bubble" data-goto="indicator" data-p="${state.paramIdx}" data-i="${i}">
+        <span>${escapeHtml(ind.name)}</span>
+        <span class="count">${label}</span>
+      </button>`;
+    }).join('') + '</div>';
+  }
+  return `${crumbs}<h2 class="panel-title">${escapeHtml(p.name)}</h2>${desc}${body}`;
+}
+
+function renderIndicator(){
+  const p = DATA[state.paramIdx];
+  const ind = p.indicators[state.indIdx];
+  const crumbs = crumbHtml([
+    {label:'Framework', nav: JSON.stringify({level:'home'})},
+    {label:p.name, nav: JSON.stringify({level:'param', paramIdx:state.paramIdx})},
+    {label:ind.name, current:true}
+  ]);
+
+  if (ind.subindicators.length === 0) {
+    return `${crumbs}${indicatorDetailCard(ind)}`;
+  }
+
+  const rationale = ind.rationale ? `<div class="rationale-box"><p class="field-label">Why this indicator</p><p class="field-body">${escapeHtml(ind.rationale)}</p></div>` : '';
+  const bubbles = '<div class="bubbles">' + ind.subindicators.map((s, i) => {
+    const label = s.dataSource ? '●' : '○';
+    return `<button class="bubble" data-goto="sub-detail" data-p="${state.paramIdx}" data-i="${state.indIdx}" data-s="${i}">
+      <span>${escapeHtml(s.name)}</span>
+      <span class="count">${label}</span>
+    </button>`;
+  }).join('') + '</div>';
+
+  return `${crumbs}<h2 class="panel-title">${escapeHtml(ind.name)}</h2>${rationale}${bubbles}`;
+}
+
+function indicatorDetailCard(ind){
+  const rationale = ind.rationale ? `<div class="field"><p class="field-label">Why this indicator</p><p class="field-body">${escapeHtml(ind.rationale)}</p></div>` : '';
+  const oneliner = ind.oneLiner ? `<div class="field"><p class="field-label">What it measures</p><p class="field-body">${escapeHtml(ind.oneLiner)}</p></div>` : '';
+  return `
+    <h2 class="panel-title">${escapeHtml(ind.name)}</h2>
+    <p class="panel-desc">Indicator</p>
+    <div class="detail-card">
+      ${oneliner}
+      ${rationale}
+      <div class="field"><p class="field-label">Data source</p>${sourceBlock(ind.dataSource)}</div>
+    </div>
+  `;
+}
+
+function renderSubDetail(){
+  const p = DATA[state.paramIdx];
+  const ind = p.indicators[state.indIdx];
+  const s = ind.subindicators[state.subIdx];
+  const crumbs = crumbHtml([
+    {label:'Framework', nav: JSON.stringify({level:'home'})},
+    {label:p.name, nav: JSON.stringify({level:'param', paramIdx:state.paramIdx})},
+    {label:ind.name, nav: JSON.stringify({level:'indicator', paramIdx:state.paramIdx, indIdx:state.indIdx})},
+    {label:s.name, current:true}
+  ]);
+  const oneliner = s.oneLiner ? `<div class="field"><p class="field-label">What it measures</p><p class="field-body">${escapeHtml(s.oneLiner)}</p></div>` : '';
+  return `
+    ${crumbs}
+    <h2 class="panel-title">${escapeHtml(s.name)}</h2>
+    <p class="panel-desc">Subindicator of ${escapeHtml(ind.name)}</p>
+    <div class="detail-card">
+      ${oneliner}
+      <div class="field"><p class="field-label">Data source</p>${sourceBlock(s.dataSource)}</div>
+    </div>
+  `;
+}
+
+function bindNav(){
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.addEventListener('click', () => {
+      state = JSON.parse(el.getAttribute('data-nav'));
+      window.scrollTo({top:0, behavior:'smooth'});
+      render();
+    });
+  });
+  document.querySelectorAll('[data-goto]').forEach(el => {
+    el.addEventListener('click', () => {
+      const goto = el.getAttribute('data-goto');
+      const p = el.getAttribute('data-p');
+      const i = el.getAttribute('data-i');
+      const s = el.getAttribute('data-s');
+      if (goto === 'param') state = {level:'param', paramIdx:+p};
+      else if (goto === 'indicator') state = {level:'indicator', paramIdx:+p, indIdx:+i};
+      else if (goto === 'sub-detail') state = {level:'sub-detail', paramIdx:+p, indIdx:+i, subIdx:+s};
+      window.scrollTo({top:0, behavior:'smooth'});
+      render();
+    });
+  });
+}
+
+render();
+</script>
+</body>
+</html>
